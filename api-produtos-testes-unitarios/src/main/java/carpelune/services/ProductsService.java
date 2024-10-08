@@ -1,5 +1,6 @@
 package carpelune.services;
 
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,5 +50,34 @@ public class ProductsService {
 		}
 	}
 	
+	
+	public ResponseEntity<Product> findProductById(UUID productId){
+		this.logger.log(Level.INFO, "Iniciando busca de produto por ID: " + productId);
+		
+		try {		
+			if(productId == null) {
+				this.logger.log(Level.WARNING, "ID do produto inválido!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
+			
+			this.logger.log(Level.WARNING, "Buscando produto por ID no banco");
+			Product searchedProduct = this.productsRepository.findById(productId).get();
+			
+			if(searchedProduct == null) {
+				this.logger.log(Level.WARNING, "ID fornecido não corresponde a nenhum produto cadastrado!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+			}
+			
+			return ResponseEntity.status(HttpStatus.OK).body(searchedProduct);
+		}
+		catch(Exception error) {
+			this.logger.log(Level.SEVERE, "Erro ao buscar produto por ID. Error: " + error.getMessage());
+			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+		}
+	}
+	
+	
+	//update
+	//deleteByID
 	
 }
