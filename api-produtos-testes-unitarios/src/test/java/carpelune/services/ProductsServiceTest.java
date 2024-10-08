@@ -63,4 +63,33 @@ public class ProductsServiceTest {
 	    
 	}
 	
+	@Test
+	public void testCreateProductCase2() {
+		
+		CreateProductDTO createProductDTO = new CreateProductDTO(null, 50.00, "Boné masculino praiano, várias cores");
+		
+		ResponseEntity<Product> response = productsService.createProduct(createProductDTO);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(response.getBody()).isNull();
+		
+		verify(productsRepository, times(0)).save(any(Product.class));
+	}
+	
+	
+	@Test
+	public void testCreateProductCase3() {
+		
+		CreateProductDTO createProductDTO = new CreateProductDTO("Boné de praia masculino", null, "Boné masculino praiano, várias cores");
+		
+		ResponseEntity<Product> response = productsService.createProduct(createProductDTO);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(response.getBody()).isNull();
+		
+		verify(productsRepository, times(0)).save(any(Product.class));
+	}
+	
+	
+	
 }
