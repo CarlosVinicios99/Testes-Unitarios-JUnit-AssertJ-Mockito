@@ -77,7 +77,29 @@ public class ProductsService {
 	}
 	
 	
-	//update
-	//deleteByID
+	/*//update
+	public ResponseEntity<Product> updateProduct(){
+		
+	}
+	*/
 	
+	public ResponseEntity<Void> deleteProductById(UUID productId){
+		this.logger.log(Level.INFO, "Iniciando exclusão de produto por ID: " + productId);
+		
+		try {
+			if(productId == null) {
+				this.logger.log(Level.WARNING, "ID do produto inválido!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
+			
+			this.logger.log(Level.WARNING, "Excluindo produto no Banco de dados");
+			this.productsRepository.deleteById(productId);
+			
+			return ResponseEntity.status(HttpStatus.OK).build();
+		}
+		catch(Exception error) {
+			this.logger.log(Level.SEVERE, "Erro ao excluir produto por ID. Error: " + error.getMessage());
+			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+		}
+	}
 }
