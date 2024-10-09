@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +77,6 @@ public class ProductsServiceTest {
 		verify(productsRepository, times(0)).save(any(Product.class));
 	}
 	
-	
 	@Test
 	public void testCreateProductCase3() {
 		
@@ -90,6 +90,52 @@ public class ProductsServiceTest {
 		verify(productsRepository, times(0)).save(any(Product.class));
 	}
 	
+	@Test
+	public void testFindProductByIdCase1() {
+		
+		UUID productId = UUID.randomUUID();
+		
+		Product searchedProduct = new Product(
+		    productId,
+		    "Bermuda Jeans Masculina", 
+		    44.90, 
+		    "Bermuda Jeans Masculina adulto, vários tamanhos"
+		);
+		    
+		when(productsRepository.findById(any(UUID.class))).thenReturn(Optional.of(searchedProduct));
+		
+		ResponseEntity<Product> response = productsService.findProductById(productId);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody().getProductId()).isEqualTo(productId);
+		assertThat(response.getBody().getName()).isEqualTo(searchedProduct.getName());
+		assertThat(response.getBody().getDescription()).isEqualTo(searchedProduct.getDescription());	
+	}
+	
+	@Test
+	public void testFindProductByIdCase2() {
+		
+		UUID productId = null;
+		
+		ResponseEntity<Product> response = productsService.findProductById(productId);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(response.getBody()).isNull();
+		
+	}
+	
+	@Test
+	public void testFindProductByIdCase3() {
+		
+		UUID productId = UUID.randomUUID();
+		
+		when(productsRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+		
+		ResponseEntity<Product> response = productsService.findProductById(productId);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		assertThat(response.getBody()).isNull();
+	}
 	
 	
 }
