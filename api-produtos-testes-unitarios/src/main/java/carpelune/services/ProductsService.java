@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import carpelune.dto.CreateProductDTO;
+import carpelune.dto.UpdateProductDTO;
 import carpelune.models.Product;
 import carpelune.repositories.ProductsRepository;
 
@@ -65,7 +66,7 @@ public class ProductsService {
 			
 			if(searchedProduct == null) {
 				this.logger.log(Level.WARNING, "ID fornecido não corresponde a nenhum produto cadastrado!");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
 			
 			return ResponseEntity.status(HttpStatus.OK).body(searchedProduct);
@@ -77,11 +78,48 @@ public class ProductsService {
 	}
 	
 	
-	/*//update
-	public ResponseEntity<Product> updateProduct(){
+	public ResponseEntity<Product> updateProduct(UpdateProductDTO updateProductDTO){
+		this.logger.log(Level.INFO, "Iniciando atualização de produto com ID: " + updateProductDTO.productId());
+		
+		try {
+			
+			if(updateProductDTO.productId() == null) {
+				this.logger.log(Level.WARNING, "ID fornecido não corresponde a nenhum produto cadastrado!");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			}
+			
+			this.logger.log(Level.WARNING, "Buscando produto por ID no banco de dados");
+			Product searchedProduct = this.productsRepository.findById(updateProductDTO.productId()).get();
+			
+			if(searchedProduct == null) {
+				this.logger.log(Level.WARNING, "ID fornecido não corresponde a nenhum produto cadastrado!");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+			}
+			
+			if(updateProductDTO.description() != null) {
+				searchedProduct.setDescription(updateProductDTO.description());
+			}
+			
+			if(updateProductDTO.price() != null) {
+				searchedProduct.setPrice(updateProductDTO.price());
+			}
+			
+			if(updateProductDTO.name() != null) {
+				searchedProduct.setName(updateProductDTO.name());
+			}
+			
+			this.logger.log(Level.WARNING, "Atualizando produto no banco de dados");
+			Product updatedProduct = this.productsRepository.save(searchedProduct);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
+		}
+		catch(Exception error) {
+			this.logger.log(Level.SEVERE, "Não foi possível atualizar produto. Error: " + error.getMessage());
+			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+		}
 		
 	}
-	*/
+
 	
 	public ResponseEntity<Void> deleteProductById(UUID productId){
 		this.logger.log(Level.INFO, "Iniciando exclusão de produto por ID: " + productId);
