@@ -202,7 +202,26 @@ public class ProductsServiceTest {
 	
 	
 	@Test
-	public void test
-	@Test
+	public void testDeleteProductByIdCase1() {
+		UUID productId = UUID.randomUUID();
+		
+		ResponseEntity<Void> response = productsService.deleteProductById(productId);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).isNull();
+		
+		verify(productsRepository, times(1)).deleteById(any(UUID.class));
+	}
 	
+	@Test
+	public void testeDeleteProductByIdCase2() {
+		UUID productId = null;
+		
+		ResponseEntity<Product> response = productsService.findProductById(productId);
+		
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(response.getBody()).isNull();
+		
+		verify(productsRepository, times(0)).deleteById(any(UUID.class));
+	}
 }
