@@ -80,7 +80,6 @@ public class ProductsService {
 	}
 
 	
-	
 	public ResponseEntity<Product> updateProduct(UpdateProductDTO updateProductDTO){
 		this.logger.log(Level.INFO, "Iniciando atualização de produto com ID: " + updateProductDTO.productId());
 		
@@ -92,12 +91,14 @@ public class ProductsService {
 			}
 			
 			this.logger.log(Level.WARNING, "Buscando produto por ID no banco de dados");
-			Product searchedProduct = this.productsRepository.findById(updateProductDTO.productId()).get();
+			Optional<Product> optionalSearchedProduct = this.productsRepository.findById(updateProductDTO.productId());
 			
-			if(searchedProduct == null) {
+			if(optionalSearchedProduct.isEmpty()) {
 				this.logger.log(Level.WARNING, "ID fornecido não corresponde a nenhum produto cadastrado!");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 			}
+			
+			Product searchedProduct = optionalSearchedProduct.get();
 			
 			if(updateProductDTO.description() != null) {
 				searchedProduct.setDescription(updateProductDTO.description());

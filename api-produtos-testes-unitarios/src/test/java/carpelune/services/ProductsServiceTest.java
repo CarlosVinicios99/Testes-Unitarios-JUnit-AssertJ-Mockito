@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import carpelune.dto.CreateProductDTO;
+import carpelune.dto.UpdateProductDTO;
 import carpelune.models.Product;
 import carpelune.repositories.ProductsRepository;
 
@@ -90,6 +91,7 @@ public class ProductsServiceTest {
 		verify(productsRepository, times(0)).save(any(Product.class));
 	}
 	
+	
 	@Test
 	public void testFindProductByIdCase1() {
 		
@@ -109,7 +111,9 @@ public class ProductsServiceTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody().getProductId()).isEqualTo(productId);
 		assertThat(response.getBody().getName()).isEqualTo(searchedProduct.getName());
-		assertThat(response.getBody().getDescription()).isEqualTo(searchedProduct.getDescription());	
+		assertThat(response.getBody().getDescription()).isEqualTo(searchedProduct.getDescription());
+		
+		verify(productsRepository, times(1)).findById(any(UUID.class));
 	}
 	
 	@Test
@@ -122,6 +126,7 @@ public class ProductsServiceTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 		assertThat(response.getBody()).isNull();
 		
+		verify(productsRepository, times(0)).findById(any(UUID.class));
 	}
 	
 	@Test
@@ -135,7 +140,69 @@ public class ProductsServiceTest {
 		
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 		assertThat(response.getBody()).isNull();
+		
+		verify(productsRepository, times(1)).findById(any(UUID.class));
 	}
 	
+	
+	@Test
+	public void testUpdateProductCase1() {
+		
+		UpdateProductDTO updateProductDTO = new 
+			UpdateProductDTO(UUID.randomUUID(), "Camisa polo", 79.90, "Camisa Polo masculina adulto");
+		
+		Product updatedProduct = new Product(UUID.randomUUID(), "Camisa polo", 79.90, "Camisa Polo masculina adulto");
+		
+		when(productsRepository.findById(any(UUID.class))).thenReturn(Optional.of(updatedProduct));
+		when(productsRepository.save(any(Product.class))).thenReturn(updatedProduct);
+
+	    ResponseEntity<Product> response = productsService.updateProduct(updateProductDTO);
+	    
+	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+	    assertThat(response.getBody().getName()).isEqualTo(updatedProduct.getName());
+	    assertThat(response.getBody().getPrice()).isEqualTo(updatedProduct.getPrice());
+	    assertThat(response.getBody().getDescription()).isEqualTo(updatedProduct.getDescription());
+	    
+	    verify(productsRepository, times(1)).save(any(Product.class));
+	    verify(productsRepository, times(1)).findById(any(UUID.class));
+	    
+	}
+	
+	@Test
+	public void testUpdateProductCase2() {
+		
+		UpdateProductDTO updateProductDTO = new 
+			UpdateProductDTO(null, "Camisa polo", 79.90, "Camisa Polo masculina adulto");
+
+	    ResponseEntity<Product> response = productsService.updateProduct(updateProductDTO);
+	    
+	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	    assertThat(response.getBody()).isNull();
+	    
+	    verify(productsRepository, times(0)).findById(any(UUID.class));
+	    verify(productsRepository, times(0)).save(any(Product.class));
+	}
+	
+	@Test
+	public void testUpdateProductCase3() {
+		
+		UpdateProductDTO updateProductDTO = new 
+			UpdateProductDTO(UUID.randomUUID(), null, 79.90, null);
+		
+		when(productsRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+	    ResponseEntity<Product> response = productsService.updateProduct(updateProductDTO);
+	    
+	    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+	    assertThat(response.getBody()).isNull();
+	    
+	    verify(productsRepository, times(1)).findById(any(UUID.class));
+	    verify(productsRepository, times(0)).save(any(Product.class));
+	}
+	
+	
+	@Test
+	public void test
+	@Test
 	
 }
